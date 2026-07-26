@@ -623,22 +623,71 @@
         let opcionSeleccionada = "";
 
         function startInvitation() {
-            const welcomeScreen = document.getElementById('welcome-screen');
-            welcomeScreen.style.opacity = '0';
-            setTimeout(() => {
-                welcomeScreen.style.display = 'none';
-            }, 1000);
+            try {
+                const welcomeScreen = document.getElementById('welcome-screen');
+                if (welcomeScreen) {
+                    welcomeScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        welcomeScreen.style.display = 'none';
+                    }, 1000);
+                }
 
-            // Iniciar música si existe
-            if (music) {
-                music.play().catch(e => console.log("Audio play prevented:", e));
-                document.getElementById('music-player').style.display = 'flex';
+                if (music) {
+                    const playPromise = music.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(e => console.log("Audio play prevented:", e));
+                    }
+                    const playerEl = document.getElementById('music-player');
+                    if (playerEl) playerEl.style.display = 'flex';
+                }
+
+                const dateEl = document.getElementById('animated-date');
+                if (dateEl) dateEl.classList.add('start-typing');
+            } catch (err) {
+                console.log("Error al abrir la invitación:", err);
+                // Aunque falle la música o la animación, la pantalla de bienvenida se oculta igual
+                const welcomeScreen = document.getElementById('welcome-screen');
+                if (welcomeScreen) welcomeScreen.style.display = 'none';
+            }
+        }
+
+        // ===================== CUENTA REGRESIVA =====================
+        // Fecha y hora exacta de la boda: 28 de Agosto de 2026, 7:00 PM
+        const weddingDate = new Date("2026-08-28T19:00:00").getTime();
+        let countdownInterval;
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = weddingDate - now;
+
+            const daysEl = document.getElementById('days');
+            const hoursEl = document.getElementById('hours');
+            const minutesEl = document.getElementById('minutes');
+            const secondsEl = document.getElementById('seconds');
+
+            if (distance <= 0) {
+                if (daysEl) daysEl.textContent = "00";
+                if (hoursEl) hoursEl.textContent = "00";
+                if (minutesEl) minutesEl.textContent = "00";
+                if (secondsEl) secondsEl.textContent = "00";
+                clearInterval(countdownInterval);
+                return;
             }
 
-            // Iniciar animación de fecha
-            const dateEl = document.getElementById('animated-date');
-            if (dateEl) dateEl.classList.add('start-typing');
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            if (daysEl) daysEl.textContent = String(days).padStart(2, '0');
+            if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
+            if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, '0');
+            if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
         }
+
+        // Se calcula una vez de inmediato (para no esperar 1 segundo) y luego cada segundo
+        updateCountdown();
+        countdownInterval = setInterval(updateCountdown, 1000);
 
         function toggleMusic() {
             if (music.paused) {
@@ -650,22 +699,41 @@
             }
         }
 
-        // Cuenta regresiva corregida y optimizada
-        const countdownDate = new Date("August 28, 2026 19:00:00").getTime();
+        function openCalendarModal() {
+            document.getElementById('calendarModalOverlay').classList.add('show');
+        }
 
-        function updateCountdown() {
-            const now = new Date().getTime();
-            const distance = countdownDate - now;
+        function closeCalendarModal() {
+            document.getElementById('calendarModalOverlay').classList.remove('show');
+        }
 
-            if (distance < 0) {
-                document.getElementById("days").innerText = "00";
-                document.getElementById("hours").innerText = "00";
-                document.getElementById("minutes").innerText = "00";
-                document.getElementById("seconds").innerText = "00";
-                return;
+        function openRsvpModal() {
+            document.getElementById('rsvpModalOverlay').classList.add('show');
+        }
+
+        function closeRsvpModal() {
+            document.getElementById('rsvpModalOverlay').classList.remove('show');
+        }
+
+        function submitRSVP(opcion) {
+            opcionSeleccionada = opcion;
+            closeRsvpModal();
+            
+            const btnPrincipal = document.getElementById('btn-principal-rsvp');
+            const msgExito = document.getElementById('msg-pase-exito');
+            const btnDecline = document.getElementById('msg-pase-decline');
+
+            if (opcion === 'Sí') {
+                btnPrincipal.style.display = 'none';
+                msgExito.style.display = 'block';
+                btnDecline.style.display = 'none';
+            } else {
+                btnPrincipal.style.display = 'none';
+                msgExito.style.display = 'none';
+                btnDecline.style.display = 'block';
+                btnDecline.innerText = "No Asistiré";
             }
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1Normally I can help with things like this, but I don't seem to have access to that content. You can try again or ask me for something else.
+        }
+    </script>
+</body>
+</html>
